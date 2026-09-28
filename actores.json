@@ -1,0 +1,12 @@
+[
+  { "id": 1, "nombre": "Leonardo DiCaprio", "anioNacimiento": 1974 },
+  { "id": 2, "nombre": "Joseph Gordon-Levitt", "anioNacimiento": 1981 },
+  { "id": 3, "nombre": "Keanu Reeves", "anioNacimiento": 1964 },
+  { "id": 4, "nombre": "Carrie-Anne Moss", "anioNacimiento": 1967 },
+  { "id": 5, "nombre": "Tom Hanks", "anioNacimiento": 1956 },
+  { "id": 6, "nombre": "Morgan Freeman", "anioNacimiento": 1937 },
+  { "id": 7, "nombre": "Tim Robbins", "anioNacimiento": 1958 },
+  { "id": 8, "nombre": "Christian Bale", "anioNacimiento": 1974 },
+  { "id": 9, "nombre": "Heath Ledger", "anioNacimiento": 1979 },
+  { "id": 10, "nombre": "Brad Pitt", "anioNacimiento": 1963 }
+]

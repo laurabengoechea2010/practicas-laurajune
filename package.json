@@ -1,0 +1,24 @@
+{
+  "name": "practicas-laurajune",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laurabengoechea2010/practicas-laurajune.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/laurabengoechea2010/practicas-laurajune/issues"
+  },
+  "homepage": "https://github.com/laurabengoechea2010/practicas-laurajune#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
