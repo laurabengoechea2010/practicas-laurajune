@@ -27,11 +27,11 @@ app.get('/peliculas', (req, res) => {    // req (petición) res (respuesta)
 
   const resultado = [];
 
-  for (const p of encontradas) {
+  for (const p of encontradas) { //recorro mis pelis encontradas
     // creo la lista de nombres de actores de esta película
     const nombresActores = [];
 
-    for (const idActor of p.actores) {
+    for (const idActor of p.actores) { //recorro  actores de la peli encontrada
       const actor = todosActores.find(a => a.id === idActor);
       if (actor) {
         nombresActores.push(actor.nombre);
@@ -40,7 +40,7 @@ app.get('/peliculas', (req, res) => {    // req (petición) res (respuesta)
       }
     }
 
-    // creo la película para la respuesta, con los nombres
+    // creo la película para la respuesta, con los nombres pero no lo guardo en la memoria
     resultado.push({
       id: p.id,
       nombre: p.nombre,
