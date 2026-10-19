@@ -1,0 +1,40 @@
+body {
+  background-color: #141414;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.category {
+  margin: 20px;
+}
+
+.fila {
+  display: flex;        /* pone las películas en horizontal */
+  gap: 15px;            /* espacio entre ellas */
+  overflow-x: auto;     /* barra de scroll si no caben */
+}
+
+.movie {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 15px;
+  min-width: 200px;     /* para que no se aplasten */
+}
+
+.movie button {
+  background-color: #e50914;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+h1 {
+  color: #e50914;   /* rojo Netflix */
+  margin: 20px;
+}
+
+h2 {
+  color: white;
+  text-align: left;
+}
