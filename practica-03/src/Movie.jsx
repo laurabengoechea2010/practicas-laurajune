@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function Movie({ titulo, director, anio }) {   // los datos que le pasan (props)
+function Movie({ titulo, anio, actores }) {   // los datos que le pasan (props)
   const [abierto, setAbierto] = useState(false); // empieza cerrado
 
   return (
@@ -9,7 +9,7 @@ function Movie({ titulo, director, anio }) {   // los datos que le pasan (props)
 
       {abierto && (                       // solo se enseña si abierto es true
         <div>
-          <p>Director: {director}</p>
+          <p>Actores: {actores.join(', ')}</p>
           <p>Año: {anio}</p>
         </div>
       )}

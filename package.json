@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/laurabengoechea2010/practicas-laurajune#readme",
   "dependencies": {
+    "cors": "^2.8.6",
     "express": "^5.2.1"
   }
 }

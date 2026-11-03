@@ -3,6 +3,8 @@ const fs = require('fs'); //poder escribir y ver archivos
 const path = require('path'); // para poder crear rutas de archivos
 
 const app = express(); //llamar a nuestro servidor app
+const cors = require('cors'); // para que la app de React (otro puerto) pueda llamar a la API
+app.use(cors());
 app.use(express.json()); // para poder leer req.body en POST, PUT y PATCH
 
 // Rutas completas a los archivos, junto a server.js
@@ -11,19 +13,21 @@ const ARCHIVO_ACTORES = path.join(__dirname, 'actores.json');
 
 // ===================== PELÍCULAS =====================
 
-// Buscar películas por nombre: GET /peliculas?nombre=matrix
+// Buscar películas por nombre: GET /peliculas?nombre=matrix (y/o por categoría: ?categoria=clasicas)
 app.get('/peliculas', (req, res) => {    // req (petición) res (respuesta)
   const peliculas = JSON.parse(fs.readFileSync(ARCHIVO_PELICULAS, 'utf8'));
   const todosActores = JSON.parse(fs.readFileSync(ARCHIVO_ACTORES, 'utf8'));
 
-  const peticion = req.query.nombre;
+  const texto = (req.query.nombre || '').toLowerCase(); // si no mandan nombre, devuelve todas
+  let encontradas = peliculas.filter(p => p.nombre.toLowerCase().includes(texto)); //busco en mis peliculas si incluye la pelicula de mi peticion
 
-  if (!peticion) {
-    return res.status(400).json({ error: 'Falta el parámetro nombre' });
+  // filtro por categoría: GET /peliculas?categoria=clasicas o ?categoria=modernas
+  const categoria = req.query.categoria;
+  if (categoria === 'clasicas') {
+    encontradas = encontradas.filter(p => p.anio < 2000);   // antes del 2000
+  } else if (categoria === 'modernas') {
+    encontradas = encontradas.filter(p => p.anio >= 2000);  // del 2000 en adelante
   }
-
-  const texto = peticion.toLowerCase();
-  const encontradas = peliculas.filter(p => p.nombre.toLowerCase().includes(texto)); //busco en mis peliculas si incluye la pelicula de mi peticion
 
   const resultado = [];
 
@@ -149,21 +153,71 @@ app.patch('/peliculas/:id', (req, res) => {
 
   fs.writeFileSync(ARCHIVO_PELICULAS, JSON.stringify(peliculas, null, 2));
   res.json(pelicula);
+});
+
+// Añadir actor a una película: POST /peliculas/:id/actores
+app.post('/peliculas/:id/actores', (req, res) => {
+  const peliculas = JSON.parse(fs.readFileSync(ARCHIVO_PELICULAS, 'utf8'));
+  const todosActores = JSON.parse(fs.readFileSync(ARCHIVO_ACTORES, 'utf8'));
+
   const id = Number(req.params.id);
+  const pelicula = peliculas.find(p => p.id === id);
+  if (!pelicula) {
     return res.status(404).json({ error: 'Película no encontrada' });
   }
+
+  const idActor = req.body.idActor;
+  const actor = todosActores.find(a => a.id === idActor);
+  if (!actor) {
+    return res.status(404).json({ error: 'Actor no encontrado' });
+  }
+
+  if (pelicula.actores.includes(idActor)) {
+    return res.status(400).json({ error: 'El actor ya está en la película' });
+  }
+
+  pelicula.actores.push(idActor);
+  fs.writeFileSync(ARCHIVO_PELICULAS, JSON.stringify(peliculas, null, 2));
+  res.status(201).json(pelicula);
+});
+
+// Quitar actor de una película: DELETE /peliculas/:id/actores/:idActor
+app.delete('/peliculas/:id/actores/:idActor', (req, res) => {
+  const peliculas = JSON.parse(fs.readFileSync(ARCHIVO_PELICULAS, 'utf8'));
+  const id = Number(req.params.id);
+  const idActor = Number(req.params.idActor);
+
+  const pelicula = peliculas.find(p => p.id === id);
+  if (!pelicula) {
+    return res.status(404).json({ error: 'Película no encontrada' });
+  }
+
   const posicion = pelicula.actores.findIndex(a => a === idActor);
   if (posicion === -1) {
     return res.status(404).json({ error: 'Ese actor no está en la película' });
+  }
+
+  pelicula.actores.splice(posicion, 1); // lo quito de la lista de actores de la película
+  fs.writeFileSync(ARCHIVO_PELICULAS, JSON.stringify(peliculas, null, 2));
+  res.json(pelicula);
+});
+
+// ===================== ACTORES =====================
 
 // Crear actor: POST /actores
+app.post('/actores', (req, res) => {
+  const actores = JSON.parse(fs.readFileSync(ARCHIVO_ACTORES, 'utf8'));
+
+  const nombre = req.body.nombre;
   const anio = req.body.anio;
 
   if (!nombre || !anio) {
     return res.status(400).json({ error: 'Faltan nombre o año' });
+  }
 
   let nuevoId = 1;
   for (const a of actores) {
+    if (a.id >= nuevoId) {
       nuevoId = a.id + 1;
     }
   }
@@ -203,23 +257,10 @@ app.delete('/actores/:id', (req, res) => {
 // Modificar actor (nombre y/o año): PATCH /actores/:id
 app.patch('/actores/:id', (req, res) => {
   const actores = JSON.parse(fs.readFileSync(ARCHIVO_ACTORES, 'utf8'));
-  res.json(actor);
-});
 
-app.listen(3000);
-  fs.writeFileSync(ARCHIVO_ACTORES, JSON.stringify(actores, null, 2));
-    actor.anio = anio;
-  }
-
-  }
-  if (anio) {
   const id = Number(req.params.id);
-    actor.nombre = nombre;
   const actor = actores.find(a => a.id === id);
 
-  if (nombre) {
-
-  }
   if (!actor) {
     return res.status(404).json({ error: 'Actor no encontrado' });
   }
@@ -229,52 +270,17 @@ app.listen(3000);
 
   if (!nombre && !anio) {
     return res.status(400).json({ error: 'Manda al menos nombre o año' });
-    if (a.id >= nuevoId) {
   }
-  const actores = JSON.parse(fs.readFileSync(ARCHIVO_ACTORES, 'utf8'));
 
-  const nombre = req.body.nombre;
-app.post('/actores', (req, res) => {
+  if (nombre) {
+    actor.nombre = nombre;
   }
+  if (anio) {
+    actor.anio = anio;
+  }
+
+  fs.writeFileSync(ARCHIVO_ACTORES, JSON.stringify(actores, null, 2));
+  res.json(actor);
 });
 
-// ===================== ACTORES =====================
-
-  pelicula.actores.splice(posicion, 1); // lo quito de la lista de actores de la película
-  fs.writeFileSync(ARCHIVO_PELICULAS, JSON.stringify(peliculas, null, 2));
-  res.json(pelicula);
-
-
-  const pelicula = peliculas.find(p => p.id === id);
-  if (!pelicula) {
-  const idActor = Number(req.params.idActor);
-
-// Quitar actor de una película: DELETE /peliculas/:id/actores/:idActor
-
-app.delete('/peliculas/:id/actores/:idActor', (req, res) => {
-  const peliculas = JSON.parse(fs.readFileSync(ARCHIVO_PELICULAS, 'utf8'));
-  const id = Number(req.params.id);
-  res.status(201).json(pelicula);
-
-});
-  const idActor = req.body.idActor;
-  fs.writeFileSync(ARCHIVO_PELICULAS, JSON.stringify(peliculas, null, 2));
-  pelicula.actores.push(idActor);
-
-  }
-
-  }
-  if (!actor) {
-    return res.status(400).json({ error: 'El actor ya está en la película' });
-
-  if (pelicula.actores.includes(idActor)) {
-    return res.status(404).json({ error: 'Actor no encontrado' });
-  }
-
-  const actor = todosActores.find(a => a.id === idActor);
-
-    return res.status(404).json({ error: 'Película no encontrada' });
-  const pelicula = peliculas.find(p => p.id === id);
-  if (!pelicula) {
-});
-
+app.listen(3000);
